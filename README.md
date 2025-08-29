@@ -4,10 +4,6 @@ A Streamlit dashboard that cleans, analyzes, and predicts traffic stop outcomes 
 Project Overview
 
 This project is a Traffic Police Data Analysis and Prediction Dashboard. It automates the process of cleaning, analyzing, and visualizing traffic stop records to provide actionable insights for law enforcement and policymakers.
-
-Here’s a clear description you can use for your repository and project explanation:
-
-
 Steps Done in the Project
 
 1. Data Cleaning
@@ -43,8 +39,6 @@ Steps Done in the Project
    * Displayed key metrics like total stops, arrest rate, drug-related stop rate, most common violations, and peak stop times.
    * Used columns and styled summaries for easy interpretation of results.
 
----
-
 Real-Life Problem Solved
 
 * Helps traffic authorities **identify patterns** in traffic violations and arrests.
@@ -53,8 +47,4 @@ Real-Life Problem Solved
 * Provides a **predictive tool** to assess likely outcomes of traffic stops, helping officers make informed decisions.
 * Improves **transparency and reporting**, offering clear dashboards for management and public insights.
 
----
 
-This description is clean, concise, and suitable for your GitHub repository’s **description section**.
-
-If you want, I can also **write a one-liner description** for GitHub that’s under 100 characters for quick readability. Do you want me to do that?
