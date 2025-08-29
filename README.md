@@ -34,7 +34,7 @@ Steps Done in the Project
      * Time-of-day analysis for traffic stops.
    * Predicted outcomes and violations for new traffic stop entries based on historical patterns.
 
-   Metrics and Visualization
+  5. Metrics and Visualization
 
    * Displayed key metrics like total stops, arrest rate, drug-related stop rate, most common violations, and peak stop times.
    * Used columns and styled summaries for easy interpretation of results.
