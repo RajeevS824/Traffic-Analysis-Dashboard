@@ -31,10 +31,7 @@ print(" Data cleaned and saved as cleaned_traffic_stops.csv")
 # SQL – Database Connection
 
 import pandas as pd
-from sqlalchemy import create_engine
-
-# Load cleaned dataset
-df = pd.read_csv("cleaned_traffic_stops.csv")
+from sqlalchemy import create_engine, text
 
 # Connect to MySQL
 engine = create_engine("mysql+mysqlconnector://root:new_password@127.0.0.1/traffic_analysis")
@@ -48,8 +45,6 @@ print(" Data inserted successfully into MySQL (traffic_records)")
 """
 
 import streamlit as st
-import pandas as pd
-from sqlalchemy import create_engine, text
 import base64, time
 
 # ----------------- Background Setup -----------------
@@ -71,17 +66,14 @@ def set_background(image_file):
 
 set_background(r"C:\Users\rajul\Downloads\Police_Logo.png")
 
-# ----------------- Database Connection -----------------
-engine = create_engine("mysql+mysqlconnector://root:new_password@127.0.0.1/traffic_analysis")
-
-def run_query(query):
-    with engine.connect() as conn:
-        return pd.read_sql(text(query), conn)
-
 # ----------------- Streamlit Setup -----------------
 st.set_page_config(page_title="🚦 Traffic Stops Data Analysis", layout="wide")
 st.title("🚦 Traffic Police Post Digital Ledger")
 st.subheader(" Traffic Data Dashboard Overview")
+
+def run_query(query):
+    with engine.connect() as conn:
+        return pd.read_sql(text(query), conn)
 
 # Show sample dataset
 queries_0 = "SELECT * FROM traffic_records LIMIT 101;"
@@ -203,11 +195,13 @@ queries = {
         ORDER BY total DESC LIMIT 10;
     """,
     "Which vehicles were most frequently searched": """
-        SELECT vehicle_number
+        SELECT vehicle_number, COUNT(*) AS total_searches
         FROM traffic_records
         WHERE search_conducted = TRUE
         GROUP BY vehicle_number
+        ORDER BY total_searches DESC
         LIMIT 10;
+;
 
     """,
     "Driver age group had the highest arrest rate": """
@@ -218,11 +212,9 @@ queries = {
         LIMIT 5;
     """,
     "Gender distribution of drivers stopped in each country": """
-        SELECT violation, COUNT(*) AS total
+        SELECT country_name, driver_gender, COUNT(*) AS total
         FROM traffic_records
-        WHERE driver_age < 25
-        GROUP BY violation
-        ORDER BY total DESC LIMIT 10;
+        GROUP BY country_name, driver_gender;
     """,
     "Which race and gender combination has the highest search rate": """
         SELECT driver_race,driver_gender,SUM(search_conducted) / COUNT(*) AS search_rate
@@ -271,21 +263,24 @@ queries = {
         GROUP BY time_period ORDER BY arrest_rate_percent DESC;
     """,
     "Violations are most associated with searches or arrests": """
-        SELECT violation, COUNT(*) AS total
+        SELECT violation, 
+        SUM(search_conducted) AS searches,
+        SUM(is_arrested) AS arrests,
+        COUNT(*) AS total,
+       (SUM(search_conducted)+SUM(is_arrested))*1.0/COUNT(*) AS rate
         FROM traffic_records
-        WHERE driver_age < 25
         GROUP BY violation
-        ORDER BY total DESC LIMIT 10;
+        ORDER BY rate DESC;
     """,
     "Violations are most common among younger drivers (<25)": """
         select driver_age,violation,count(*) as most_violations
         from traffic_records
         where driver_age < 25
         group by driver_age,violation
-        order by most_violations;;
+        order by most_violations;
 
     """,
-        "Is there a violation that rarely results in search or arrest": """
+    "Is there a violation that rarely results in search or arrest": """
         SELECT
         violation,
         SUM(CASE WHEN search_conducted = TRUE OR is_arrested = TRUE THEN 1 ELSE 0 END) AS search_or_arrest_count,
@@ -356,24 +351,25 @@ queries_1 = {
     """,
     "Driver Violation Trends Based on Age and Race": """
         SELECT
-    tr.driver_age,
-    tr.driver_race,
-    v.violation,
-    COUNT(*) AS violation_count
-FROM traffic_records tr
-JOIN (
-    SELECT driver_age, driver_race, violation
-    FROM traffic_records
-    GROUP BY driver_age, driver_race, violation
-) v
-ON tr.driver_age = v.driver_age AND tr.driver_race = v.driver_race
-GROUP BY tr.driver_age, tr.driver_race, v.violation
-ORDER BY violation_count DESC;
-
+        tr.driver_age,
+        tr.driver_race,
+        tr.violation,
+        COUNT(*) AS violation_count
+        FROM traffic_records tr
+        JOIN (
+        SELECT driver_age, driver_race, violation
+        FROM traffic_records
+        GROUP BY driver_age, driver_race, violation
+        ) v
+        ON tr.driver_age = v.driver_age 
+        AND tr.driver_race = v.driver_race
+        AND tr.violation = v.violation
+        GROUP BY tr.driver_age, tr.driver_race, tr.violation
+        ORDER BY violation_count DESC;
     """,
     "Time Period Analysis of Stops": """
         SELECT
-            d.year,
+        d.year,
         d.month,
         d.hour_of_day,
         COUNT(*) AS total_stops
@@ -508,3 +504,6 @@ with col2:
 
 # Below line is the command you run in your terminal to start your Streamlit dashboard.
 # python -m streamlit run c:/Users/rajul/OneDrive/Documents/GUVI/Mini_project/Traffic_app.py
+
+
+
