@@ -260,7 +260,7 @@ engine = create_engine("mysql+mysqlconnector://root:password@localhost/traffic_a
 ### **5️⃣ Run Streamlit App**
 
 ```bash
-streamlit run app/main.py
+streamlit run traffic_app.py
 ```
 
 ---
